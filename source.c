@@ -200,6 +200,12 @@ update_source(struct source *src,
        (src->seqno == seqno && src->metric > metric)) {
         src->seqno = seqno;
         src->metric = metric;
+    }else if (src->seqno == seqno && src->metric > metric) {
+        unsigned int add_metric = (unsigned int)(src->metric - metric) * 
+            (now.tv_sec - src->time) / (SOURCE_GC_TIME);
+        debugf("Smooth grow up srouce %s metric. From %d to %d\n",
+               src->id, src->metric, seqno_plus(src->metric,add_metric));
+        src->metric = seqno_plus(src->metric,add_metric);
     }
     src->time = now.tv_sec;
 }
